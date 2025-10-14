@@ -1,3 +1,0 @@
-C:/Users/ProchiMar/Desktop/škola/Pocitace_a_programovani/Projekt_denik/out/build/x64-debug/CMakeFiles/Projekt_denik.dir
-C:/Users/ProchiMar/Desktop/škola/Pocitace_a_programovani/Projekt_denik/out/build/x64-debug/CMakeFiles/edit_cache.dir
-C:/Users/ProchiMar/Desktop/škola/Pocitace_a_programovani/Projekt_denik/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
