@@ -27,7 +27,10 @@ Interface
 
 Vyjede legenda zmáčkni "a" pro přidání nového úkolu
 Vyjede legenda zmáčkni "b" pro vybírání mezi úkoly => přes které pak budeš oznčovat ty hotové
-Vyjede legenda zmáčkni "c" pro přepnutí mezi denním zobrazením a týdenním zobrazením 
+Vyjede legenda zmáčkni "c" pro upravení úkolu stiskni [c]
+Vyjede legenda zmáčkni "d" pro přepnutí mezi denním zobrazením a týdenním zobrazením 
+
+možná by bylo hezčí kdyby to písmeno bylo v hranatých závorkách [a]
 ----------------------------------------
 
 zmáčkneme "a" 
@@ -36,26 +39,29 @@ Program se zeptá na který den a čas (to by mělo jít s pomocí nějaké knih
             - poté se zeptá na prioritu pro daný úkol 1-5 (1 nejvyšší priorita, 5 nejnižší)
 program by měl přiřadit číslo k danému úkolu (toto číslování by se mělo měnit podle toho jaký úkol má vyšší prioritu)
 
-po uložení odpovědi vypíše všechny úkoly na daný den v týdnu/ pro celý týden (to by mělo jít s pomocí nějaké knihovny pro čas) (pomocí stavové proměnné, kterou budeme měnit "c" budeme přepínat mezi vypisováním daného dne a týdenního vypisování)
+po uložení odpovědi vypíše všechny úkoly na daný den v týdnu/ pro celý týden (to by mělo jít s pomocí nějaké knihovny pro čas) (pomocí stavové proměnné, kterou budeme měnit "d" budeme přepínat mezi vypisováním daného dne a týdenního vypisování)
 -----------------------------------------
 
 zmáčkneme "b" 
 Program se zeptá, který úkol chceme editovat 
     - zeptá se na den a poté na číslo úkolu
     - vyjede legenda
-        zmáčkni "d" pro označení úkoly jako splněný
-        zmáčkni "e" pro změnu priority
-        zmáčkni "f" pro změnu obsahu úkolu
+        zmáčkni "e" pro označení úkoly jako splněný
+        zmáčkni "f" pro změnu priority
+        zmáčkni "g" pro změnu obsahu úkolu
 
 zadané úkoly by se měly číslovat - po splněný úkol by měl mít automaticky prioritu 5
 -----------------------------------------
 
-Když budeme v meny a zmáčkneme "c" program nám přepne vypisování mezi denním a týdenním zobrazením
+Když budeme v meny a zmáčkneme "d" program nám přepne vypisování mezi denním a týdenním zobrazením
 2 Stavové proměnné [1,2] 
-stiskem "c" se tato proměnná změní na tu druhou
+stiskem "d" se tato proměnná změní na tu druhou
 
 Stav 1 
 Vypisuje úkoly pro daný den
 
 Stav 2
 vypisuje úkoly pro daný týden 
+-----------------------------------------
+
+vždy nohoře bude legenda a ta bude oddělena ---------------------------------
