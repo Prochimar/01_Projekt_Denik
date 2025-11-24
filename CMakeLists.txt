@@ -9,10 +9,10 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("TVOJE Máma")
+project ("Denik")
 
 # Přidejte zdrojový kód ke spustitelnému souboru tohoto projektu.
-add_executable (CMakeTarget "TVOJE Máma.cpp" "TVOJE Máma.h")
+add_executable (CMakeTarget "Denik.cpp" "Denik.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
