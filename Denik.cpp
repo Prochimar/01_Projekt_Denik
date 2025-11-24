@@ -1,5 +1,4 @@
-﻿// TVOJE Máma.cpp: Definuje vstupní bod pro aplikaci.
-//
+﻿
 
 #include "Denik.h"
 
@@ -15,8 +14,8 @@ using namespace std;
 struct Task {
     string title;
     string date;
-    bool done;
-    int priority;
+    bool done = false;
+    int priority = 0;
 };
 
 vector<Task> tasks;
@@ -26,14 +25,18 @@ HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 // pomocne funkce --> datum, ulozeni, nahrani/start ukolu
 
-string todayDate() {                 //nastaveni automatickeho datumu
-    time_t now = time(0);
-    tm* t = localtime(&now);
-    char buf[11];
-    strftime(buf, sizeof(buf), "%Y-%m-%d", t);
+
+
+string todayDate() {//nastaveni automatickeho datumu
+    time_t now = time(nullptr); //Vráctí aktuální čas nullptr neukládej do proměnné jen mi vrať čas
+    tm t;
+    localtime_s(&t, &now);// Uložení daného času do t
+
+    char buf[11]; //YYYY-MM-DD
+    strftime(buf, sizeof(buf), "%Y-%m-%d", &t); // převádí datum do písemného formátu
     return string(buf);
 }
-
+ b  
 void saveTasks() {                   //ulozeni ukolu
     ofstream file(FILENAME);
     for (auto& t : tasks) {
@@ -209,8 +212,18 @@ int main() {
         cout << "7. zobrazit prehled celeho tydne\n";
         cout << "8. konec\n";
         cout << "volba: ";
-        cin >> volba;
-        cin.ignore();
+        
+
+        if (!(cin >> volba)) { //Aby se to nerozbylo když zadám písmeno
+            cin.clear();
+            cin.ignore(10000, '\n'); //Smaže maximální délku bufferu aby tam nezbyla nějk písmena
+            cout << "Neplatna volba! Zadej cislo.\n";
+            continue;
+        }
+        cin.ignore(10000, '\n');
+
+       
+        
 
         switch (volba) {
         case 1:
@@ -248,11 +261,7 @@ int main() {
             saveTasks();
             return 0;
         default:
-            cout << "neplatna volba.\n";   //co jsi si zvolil neplati
+            cout << "neplatna volba:P.\n";   //co jsi si zvolil neplati
         }
     }
 }
-
-
-
-
