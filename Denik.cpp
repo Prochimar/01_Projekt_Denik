@@ -1,6 +1,8 @@
 ﻿
 
 #include "Denik.h"
+#include "Kontrola_data.h"
+
 
 #include <iostream>
 #include <vector>
@@ -36,7 +38,7 @@ string todayDate() {//nastaveni automatickeho datumu
     strftime(buf, sizeof(buf), "%Y-%m-%d", &t); // převádí datum do písemného formátu
     return string(buf);
 }
- b  
+
 void saveTasks() {                   //ulozeni ukolu
     ofstream file(FILENAME);
     for (auto& t : tasks) {
@@ -107,6 +109,15 @@ void addTask() {
     getline(cin, t.title);
     cout << "datum (YYYY-MM-DD) [" << todayDate() << "]: ";
     getline(cin, t.date);
+
+    if (!jePlatneDatum(t.date)) {
+        cout << "Neplatne datum!" << endl;
+        return;   
+    }
+    else {
+        cout << "Datum je platne." << endl;
+    }
+
     if (t.date.empty()) t.date = todayDate();
     cout << "priorita (0–5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
     cin >> t.priority;
@@ -201,7 +212,8 @@ int main() {
 
     while (true) {
         setColor(11);           // 11-> kod barvy pro tyrkisova
-        cout << "\n ---- elektronicky ukolovnik ----\n";
+        cout << "\n ---- elektronicky ukolovnik ----";
+        cout << "\n    ---- Prochaka, Prokes ----\n";
         setColor(7);       // 7->kod barvy pro bilou
         cout << "1. zobrazit ukoly pro dany den\n";
         cout << "2. pridat ukol\n";
