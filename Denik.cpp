@@ -213,7 +213,7 @@ int main() {
     while (true) {
         setColor(11);           // 11-> kod barvy pro tyrkisova
         cout << "\n ---- elektronicky ukolovnik ----";
-        cout << "\n    ---- Prochaka, Prokes ----\n";
+        cout << "\n    ---- Prochazka, Prokes ----\n";
         setColor(7);       // 7->kod barvy pro bilou
         cout << "1. zobrazit ukoly pro dany den\n";
         cout << "2. pridat ukol\n";
