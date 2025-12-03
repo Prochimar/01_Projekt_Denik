@@ -10,6 +10,7 @@
 #include <fstream>
 #include <ctime>
 #include <windows.h>   // knihovna pro barvy v cmd
+#include <iomanip> // put_time
 
 using namespace std;
 
@@ -75,9 +76,11 @@ void setColor(int color) {
     SetConsoleTextAttribute(hConsole, color);
 }
 
+
+
 //  vypis uloh 
 void showTasks(const string& date) {
-    cout << "\n ukoly pro den " << date << ":\n";
+    cout << "\n Ukoly pro den " << date << ":\n";
     bool found = false;
 
     for (int i = 0; i < tasks.size(); i++) {
@@ -98,16 +101,20 @@ void showTasks(const string& date) {
 
     if (!found) {
         setColor(7);        // 7-> kod barvy pro bilou
-        cout << "  (zadne ukoly)\n";
+        cout << "  (Zadne ukoly)\n";
     }
     setColor(7);   // 7-> kod barvy pro bilou
 }
 
+
+
+
+
 void addTask() {
     Task t;
-    cout << "nazev ukolu: ";
+    cout << "Nazev ukolu: ";
     getline(cin, t.title);
-    cout << "datum (DD-MM-YYYY) [" << todayDate() << "]: ";
+    cout << "Datum (DD-MM-YYYY) [" << todayDate() << "]: ";
     getline(cin, t.date);
 
     if (!jePlatneDatum(t.date)) {
@@ -119,57 +126,155 @@ void addTask() {
     }
 
     if (t.date.empty()) t.date = todayDate();
-    cout << "priorita (0–5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
+    cout << "Priorita (0 – 5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
     cin >> t.priority;
     cin.ignore();
     t.done = false;
     tasks.push_back(t);
     saveTasks();
-    cout << "ukol pridan.\n";
+    cout << "Ukol pridan.\n";
+    // ukol je uložen do file jako  t.title << "|" << t.date << "|" << t.done << "|" << t.priority
 }
 
+
+
+time_t PrevodData(const string& date) {
+    tm t = {};
+    t.tm_mday = stoi(date.substr(0, 2)); // Přečte den (první 2 znaky) [1. arugment počáteční znak 2. argument počet znaků]
+    t.tm_mon = stoi(date.substr(3, 2)) - 1;
+    t.tm_year = stoi(date.substr(6, 4)) - 1900;
+    return mktime(&t);
+}
+void showWeek() {
+    setColor(11);
+    cout << "\n       --- Prehled tohoto tydne ---\n";
+    setColor(7);
+
+
+    // Nastavení dneška na 0:00 (nastavení začátku dne)
+    time_t now = time(nullptr);
+    tm tnow = *localtime(&now);
+    tnow.tm_hour = 0;
+    tnow.tm_min = 0;
+    tnow.tm_sec = 0;
+    time_t today = mktime(&tnow);
+
+    // zjisti den v týdnu (Pozor 0 = neděle, 1 = pondělí)
+    int dayOfWeek = tnow.tm_wday;
+    if (dayOfWeek == 0) dayOfWeek = 7;  // Posunutí neděle na 7
+
+
+
+    // Úterý (dayOfWeek=2) -> dnes - (2-1) = dnes - 1 den
+
+
+    // Vypočte pondělí: dnešní půlnoc minus (počet dní, které uplynuly od pondělí)
+    time_t monday = today - (dayOfWeek - 1) * 24 * 60 * 60;
+
+    // neděle tohoto týdne
+    time_t sunday = monday + 6 * 24 * 60 * 60;
+
+    cout << "Tento tyden je od: "
+        << put_time(localtime(&monday), "%d-%m-%Y")
+        << " do "
+        << put_time(localtime(&sunday), "%d-%m-%Y")
+        << "\n\n";
+
+    // vypiš úkoly v intervalu
+    bool necoNalezeno = false;
+
+    for (auto& t : tasks) {
+        time_t td = PrevodData(t.date);
+
+        if (td >= monday && td <= sunday) {
+            cout << t.date << " - " << t.title << "\n";
+            necoNalezeno = true;
+        }
+    }
+
+    if (!necoNalezeno) {
+        cout << "V tomto tydnu nemas zadne ukoly.\n";
+    }
+}
+
+
 void markTask() {
+    // Asi by bylo lepší si vytvořit knihovnu k tomu ale už se mi nechce
+    time_t now = time(nullptr);
+    tm tnow = *localtime(&now);
+    tnow.tm_hour = 0; tnow.tm_min = 0; tnow.tm_sec = 0;
+    time_t today = mktime(&tnow);
+
+    int dayOfWeek = tnow.tm_wday;
+    if (dayOfWeek == 0) dayOfWeek = 7; // neděle = 7
+    time_t monday = today - (dayOfWeek - 1) * 24 * 60 * 60;
+    time_t sunday = monday + 6 * 24 * 60 * 60;
+
+    cout << "Tento tyden je od: "
+        << put_time(localtime(&monday), "%d-%m-%Y")
+        << " do "
+        << put_time(localtime(&sunday), "%d-%m-%Y")
+        << "\n\n";
+
+    bool necoNalezeno = false;
+    for (int i = 0; i < tasks.size(); i++) {
+        time_t td = PrevodData(tasks[i].date);
+        if (td >= monday && td <= sunday) {
+            cout << i << ") " << tasks[i].date << " - " << tasks[i].title
+                << (tasks[i].done ? " [HOTOVO]" : "") << "\n";
+            necoNalezeno = true;
+        }
+    }
+    if (!necoNalezeno) cout << "V tomto tydnu nemas zadne ukoly.\n";
+
+
+
+
+
+
+
+
     int index;
-    cout << "zadej cislo ukolu: ";
+    cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
         tasks[index].done = !tasks[index].done;
         saveTasks();
-        cout << "ukol oznacen jako " << (tasks[index].done ? "done/finished.\n" : "not finished yet.\n");
+        cout << "Ukol oznacen jako " << (tasks[index].done ? "done/finished.\n" : "not finished yet.\n");
     }
-    else cout << "neplatné cislo ukolu.\n";  //kdyz uz bylo dane cislo pouzite na jiny ukol
+    else cout << "Neplatné cislo ukolu.\n";  //kdyz uz bylo dane cislo pouzite na jiny ukol
 }
 
 void setPriority() {
     int index;
-    cout << "zadej cislo ukolu: ";
+    cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
-        cout << "nova priorita (0–5): ";            //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
+        cout << "Nova priorita (0–5): ";            //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
         cin >> tasks[index].priority;
         cin.ignore();
         saveTasks();
-        cout << "priorita nastavena.\n";
+        cout << "Priorita nastavena.\n";
     }
-    else cout << "cislo neplati.\n";               //kdyz uz bylo dane cislo pouzite
+    else cout << "Cislo neplati.\n";               //kdyz uz bylo dane cislo pouzite
 }
 
 void copyTask() {
     int index;
-    cout << "zadej cislo ukolu: ";
+    cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
         Task copy = tasks[index];
-        cout << "zadej nove datum (DD-MM-YYY): ";
+        cout << "Zadej nove datum (DD-MM-YYY): ";
         getline(cin, copy.date);
         tasks.push_back(copy);
         saveTasks();
-        cout << "ukol zkopirovan.\n";
+        cout << "Ukol zkopirovan.\n";
     }
-    else cout << "neplatne cislo.\n";           //kdyz uz bylo dane cislo pouzite
+    else cout << "Neplatne cislo.\n";           //kdyz uz bylo dane cislo pouzite
 }
 
 void moveTask() {
@@ -181,28 +286,13 @@ void moveTask() {
         cout << "zadej novy datum (YYYY-MM-DD): ";
         getline(cin, tasks[index].date);
         saveTasks();
-        cout << "ukol byl presunuty.\n";
+        cout << "Ukol byl presunuty.\n";
     }
     else cout << "neplatné cislo.\n";       //kdyz uz bylo dane cislo pouzite
 }
 
-void showWeek() {
-    cout << "\n prehled celeho tydne (pocet ukolu):\n";
-    vector<string> dates;
 
-    for (auto& t : tasks) {
-        bool exists = false;
-        for (auto& d : dates)
-            if (d == t.date) exists = true;
-        if (!exists) dates.push_back(t.date);
-    }
 
-    for (auto& d : dates) {
-        int count = 0;
-        for (auto& t : tasks) if (t.date == d) count++;
-        cout << d << ": " << count << " ukol(u)\n";
-    }
-}
 
 // hlavni menu --> vysvetlivky
 int main() {
@@ -212,17 +302,17 @@ int main() {
 
     while (true) {
         setColor(11);           // 11-> kod barvy pro tyrkisova
-        cout << "\n ---- elektronicky ukolovnik ----";
+        cout << "\n ---- Elektronicky ukolovnik ----";
         cout << "\n    ---- Prochazka, Prokes ----\n";
         setColor(7);       // 7->kod barvy pro bilou
-        cout << "1. zobrazit ukoly pro dany den\n";
-        cout << "2. pridat ukol\n";
-        cout << "3. oznacit ukol jako hotovy\n";
-        cout << "4. nastavit prioritu\n";
-        cout << "5. kopirovat ukol na jiny datum\n";
-        cout << "6. presunout ukol na jiny datum\n";
-        cout << "7. zobrazit prehled celeho tydne\n";
-        cout << "8. konec\n";
+        cout << "1. Zobrazit ukoly pro dany den\n";
+        cout << "2. Pridat ukol\n";
+        cout << "3. Oznacit ukol jako hotovy\n";
+        cout << "4. Nastavit prioritu\n";
+        cout << "5. Kopirovat ukol na jiny datum\n";
+        cout << "6. Presunout ukol na jiny datum\n";
+        cout << "7. Zobrazit prehled celeho tydne\n";
+        cout << "8. Konec\n";
         cout << "volba: ";
         
 
