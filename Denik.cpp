@@ -34,8 +34,8 @@ string todayDate() {//nastaveni automatickeho datumu
     tm t;
     localtime_s(&t, &now);// Uložení daného času do t
 
-    char buf[11]; //YYYY-MM-DD
-    strftime(buf, sizeof(buf), "%Y-%m-%d", &t); // převádí datum do písemného formátu
+    char buf[11]; //DD-MM-YYYY
+    strftime(buf, sizeof(buf), "%d-%m-%Y", &t); // převádí datum do písemného formátu
     return string(buf);
 }
 
@@ -107,7 +107,7 @@ void addTask() {
     Task t;
     cout << "nazev ukolu: ";
     getline(cin, t.title);
-    cout << "datum (YYYY-MM-DD) [" << todayDate() << "]: ";
+    cout << "datum (DD-MM-YYYY) [" << todayDate() << "]: ";
     getline(cin, t.date);
 
     if (!jePlatneDatum(t.date)) {
@@ -163,7 +163,7 @@ void copyTask() {
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
         Task copy = tasks[index];
-        cout << "zadej novy datum (YYYY-MM-DD): ";
+        cout << "zadej nove datum (DD-MM-YYY): ";
         getline(cin, copy.date);
         tasks.push_back(copy);
         saveTasks();

@@ -16,16 +16,16 @@ bool jePlatneDatum(const std::string& date) {
         return false;
     }
 
-    //Kontrola formátu YYYY-MM-DD 
-    if (date[4] != '-' || date[7] != '-') {
+    //Kontrola formátu DD-MM-YYYY 
+    if (date[2] != '-' || date[5] != '-') {
         return false;
     }
 
 
     try {
-        int rok = std::stoi(date.substr(0, 4));  // YYYY
-        int mesic = std::stoi(date.substr(5, 2)); // MM
-        int den = std::stoi(date.substr(8, 2));  // DD
+        int den = std::stoi(date.substr(0, 2));  // DD
+        int mesic = std::stoi(date.substr(3, 2)); // MM
+        int rok = std::stoi(date.substr(6, 4));  // YYYY
 
         //Kontrola rozsahu mesice a roku
         if (rok < 1 || mesic < 1 || mesic > 12) {
@@ -59,6 +59,22 @@ bool jePlatneDatum(const std::string& date) {
         return false;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
