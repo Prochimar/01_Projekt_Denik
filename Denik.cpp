@@ -2,6 +2,7 @@
 
 #include "Denik.h"
 #include "Kontrola_data.h"
+#include "Tyden.h"
 
 
 #include <iostream>
@@ -126,8 +127,18 @@ void addTask() {
     }
 
     if (t.date.empty()) t.date = todayDate();
-    cout << "Priorita (0 – 5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
+    cout << "Priorita (1 - 5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
     cin >> t.priority;
+
+    //Pro kontrolu vstuput
+    cin.ignore(10000, '\n');
+    if (t.priority < 1 || t.priority > 5) {
+        cout << "Neplatna priorita! Musi byt v rozmezi 1-5.\n";
+        return;
+    }
+
+
+
     cin.ignore();
     t.done = false;
     tasks.push_back(t);
@@ -138,104 +149,13 @@ void addTask() {
 
 
 
-time_t PrevodData(const string& date) {
-    tm t = {};
-    t.tm_mday = stoi(date.substr(0, 2)); // Přečte den (první 2 znaky) [1. arugment počáteční znak 2. argument počet znaků]
-    t.tm_mon = stoi(date.substr(3, 2)) - 1;
-    t.tm_year = stoi(date.substr(6, 4)) - 1900;
-    return mktime(&t);
-}
-void showWeek() {
-    setColor(11);
-    cout << "\n       --- Prehled tohoto tydne ---\n";
-    setColor(7);
-
-
-    // Nastavení dneška na 0:00 (nastavení začátku dne)
-    time_t now = time(nullptr);
-    tm tnow = *localtime(&now);
-    tnow.tm_hour = 0;
-    tnow.tm_min = 0;
-    tnow.tm_sec = 0;
-    time_t today = mktime(&tnow);
-
-    // zjisti den v týdnu (Pozor 0 = neděle, 1 = pondělí)
-    int dayOfWeek = tnow.tm_wday;
-    if (dayOfWeek == 0) dayOfWeek = 7;  // Posunutí neděle na 7
-
-
-
-    // Úterý (dayOfWeek=2) -> dnes - (2-1) = dnes - 1 den
-
-
-    // Vypočte pondělí: dnešní půlnoc minus (počet dní, které uplynuly od pondělí)
-    time_t monday = today - (dayOfWeek - 1) * 24 * 60 * 60;
-
-    // neděle tohoto týdne
-    time_t sunday = monday + 6 * 24 * 60 * 60;
-
-    cout << "Tento tyden je od: "
-        << put_time(localtime(&monday), "%d-%m-%Y")
-        << " do "
-        << put_time(localtime(&sunday), "%d-%m-%Y")
-        << "\n\n";
-
-    // vypiš úkoly v intervalu
-    bool necoNalezeno = false;
-
-    for (auto& t : tasks) {
-        time_t td = PrevodData(t.date);
-
-        if (td >= monday && td <= sunday) {
-            cout << t.date << " - " << t.title << "\n";
-            necoNalezeno = true;
-        }
-    }
-
-    if (!necoNalezeno) {
-        cout << "V tomto tydnu nemas zadne ukoly.\n";
-    }
-}
-
-
-void markTask() {
-    // Asi by bylo lepší si vytvořit knihovnu k tomu ale už se mi nechce
-    time_t now = time(nullptr);
-    tm tnow = *localtime(&now);
-    tnow.tm_hour = 0; tnow.tm_min = 0; tnow.tm_sec = 0;
-    time_t today = mktime(&tnow);
-
-    int dayOfWeek = tnow.tm_wday;
-    if (dayOfWeek == 0) dayOfWeek = 7; // neděle = 7
-    time_t monday = today - (dayOfWeek - 1) * 24 * 60 * 60;
-    time_t sunday = monday + 6 * 24 * 60 * 60;
-
-    cout << "Tento tyden je od: "
-        << put_time(localtime(&monday), "%d-%m-%Y")
-        << " do "
-        << put_time(localtime(&sunday), "%d-%m-%Y")
-        << "\n\n";
-
-    bool necoNalezeno = false;
-    for (int i = 0; i < tasks.size(); i++) {
-        time_t td = PrevodData(tasks[i].date);
-        if (td >= monday && td <= sunday) {
-            cout << i << ") " << tasks[i].date << " - " << tasks[i].title
-                << (tasks[i].done ? " [HOTOVO]" : "") << "\n";
-            necoNalezeno = true;
-        }
-    }
-    if (!necoNalezeno) cout << "V tomto tydnu nemas zadne ukoly.\n";
 
 
 
 
-
-
-
-
+void markTask() {//set as done
     int index;
-    cout << "Zadej cislo ukolu: ";
+      cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
@@ -246,20 +166,38 @@ void markTask() {
     else cout << "Neplatné cislo ukolu.\n";  //kdyz uz bylo dane cislo pouzite na jiny ukol
 }
 
+
+
 void setPriority() {
     int index;
     cout << "Zadej cislo ukolu: ";
     cin >> index;
-    cin.ignore();
+    cin.ignore(10000, '\n');
+
     if (index >= 0 && index < tasks.size()) {
-        cout << "Nova priorita (0–5): ";            //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
-        cin >> tasks[index].priority;
-        cin.ignore();
+
+        cout << "Nova priorita (1 - 5): ";//-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
+        int newPriority;
+        cin >> newPriority;
+        cin.ignore(10000, '\n');
+
+        // kontrola rozsahu
+        if (newPriority < 1 || newPriority > 5) {
+            cout << "Neplatna priorita! Musi byt v rozmezi 1–5.\n";
+            return;   
+        }
+
+        // uložení nové priority
+        tasks[index].priority = newPriority;
         saveTasks();
         cout << "Priorita nastavena.\n";
     }
-    else cout << "Cislo neplati.\n";               //kdyz uz bylo dane cislo pouzite
+    else {
+        cout << "Cislo neplati.\n";//kdyz uz bylo dane cislo pouzite
+    }
 }
+
+
 
 void copyTask() {
     int index;
@@ -277,9 +215,13 @@ void copyTask() {
     else cout << "Neplatne cislo.\n";           //kdyz uz bylo dane cislo pouzite
 }
 
+
+
+
+
 void moveTask() {
     int index;
-    cout << "Zadej číslo úkolu: ";
+    cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
     if (index >= 0 && index < tasks.size()) {
@@ -289,6 +231,40 @@ void moveTask() {
         cout << "Ukol byl presunuty.\n";
     }
     else cout << "neplatné cislo.\n";       //kdyz uz bylo dane cislo pouzite
+}
+
+
+
+
+
+void showWeek() {
+    setColor(11);
+    cout << "\n       --- Prehled tohoto tydne ---\n";
+    setColor(7);
+
+    // využití knihovny Tyden pro výpis aktuálního týdne
+    time_t monday, sunday;
+    getCurrentWeek(monday, sunday);
+
+    std::cout << "Tento tyden je od: " << formatDate(monday)
+              << " do " << formatDate(sunday) << std::endl << "\n";
+
+    bool necoNalezeno = false;
+    int idx = 1;  // číslování úkolů
+
+    for (auto& t : tasks) {
+        time_t td = PrevodData(t.date);
+
+        if (td >= monday && td <= sunday) {
+            cout << idx << ") " << t.date << " - " << t.title << "\n";
+            idx++;
+            necoNalezeno = true;
+        }
+    }
+
+    if (!necoNalezeno) {
+        cout << "V tomto tydnu nemas zadne ukoly.\n";
+    }
 }
 
 
@@ -325,7 +301,10 @@ int main() {
         cin.ignore(10000, '\n');
 
        
+        //využití knihovny Tyden pro vypis aktualního tydne
+       
         
+
 
         switch (volba) {
         case 1:
@@ -338,18 +317,22 @@ int main() {
             break;
         case 3:
             system("cls");
+            showWeek();
             markTask();
             break;
         case 4:
             system("cls");
+            showWeek();
             setPriority();
             break;
         case 5:
             system("cls");
+            showWeek();
             copyTask();
             break;
         case 6:
             system("cls");
+            showWeek();
             moveTask();
             break;
         case 7:
