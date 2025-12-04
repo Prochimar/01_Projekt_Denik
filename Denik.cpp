@@ -36,12 +36,12 @@ string todayDate() {//nastaveni automatickeho datumu
     tm t;
     localtime_s(&t, &now);// Uložení daného času do t
 
-    char buf[11]; //DD-MM-YYYY
+    char buf[11]; //DD-MM-YYYY (10 znaku + null)
     strftime(buf, sizeof(buf), "%d-%m-%Y", &t); // převádí datum do písemného formátu
     return string(buf);
 }
 
-void saveTasks() {                   //ulozeni ukolu
+void saveTasks() { //ulozeni ukolu 
     ofstream file(FILENAME);
     for (auto& t : tasks) {
         file << t.title << "|" << t.date << "|" << t.done << "|" << t.priority << "\n";
@@ -49,25 +49,25 @@ void saveTasks() {                   //ulozeni ukolu
     file.close();
 }
 
-void loadTasks() {                  //nahrani/start ukolu
+void loadTasks() {   //nahrani/start ukolu
     tasks.clear();
     ifstream file(FILENAME);
     if (!file.is_open()) return;
     string line;
     while (getline(file, line)) {
         Task t;
-        size_t p1 = line.find("|");
+        size_t p1 = line.find("|");  // pozice oddělovačů | v řádku
         size_t p2 = line.find("|", p1 + 1);
         size_t p3 = line.find("|", p2 + 1);
 
-        if (p1 == string::npos || p2 == string::npos || p3 == string::npos) continue;
+        if (p1 == string::npos || p2 == string::npos || p3 == string::npos) continue; //kdyz chybi oddelovac
 
-        t.title = line.substr(0, p1);
+        t.title = line.substr(0, p1); //prochazi jednotlive casti ukolu
         t.date = line.substr(p1 + 1, p2 - p1 - 1);
         t.done = stoi(line.substr(p2 + 1, p3 - p2 - 1));
         t.priority = stoi(line.substr(p3 + 1));
 
-        tasks.push_back(t);
+        tasks.push_back(t); // Přidá načtený úkol do seznamu
     }
     file.close();
 }
@@ -84,7 +84,7 @@ void showTasks(const string& date) {
     cout << "\n Ukoly pro den " << date << ":\n";
     bool found = false;
 
-    for (int i = 0; i < tasks.size(); i++) {
+    for (int i = 0; i < tasks.size(); i++) {  // Prochazi vsechny ukoly v seznamu podle data
         if (tasks[i].date == date) {
             found = true;
 
@@ -117,7 +117,10 @@ void addTask() {
     getline(cin, t.title);
     cout << "Datum (DD-MM-YYYY) [" << todayDate() << "]: ";
     getline(cin, t.date);
+    
 
+    if (t.date.empty()) t.date = todayDate(); //kdyz nezada zadne datum
+   
     if (!jePlatneDatum(t.date)) {
         cout << "Neplatne datum!" << endl;
         return;   
@@ -126,12 +129,12 @@ void addTask() {
         cout << "Datum je platne." << endl;
     }
 
-    if (t.date.empty()) t.date = todayDate();
     cout << "Priorita (1 - 5): ";  //-> 1 nejmin podstatny, 5 nejpodstatnejsi ukol
+  
     cin >> t.priority;
 
     //Pro kontrolu vstuput
-    cin.ignore(10000, '\n');
+    
     if (t.priority < 1 || t.priority > 5) {
         cout << "Neplatna priorita! Musi byt v rozmezi 1-5.\n";
         return;
