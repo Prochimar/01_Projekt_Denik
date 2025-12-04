@@ -175,7 +175,7 @@ void setPriority() {
     int index;
     cout << "Zadej cislo ukolu: ";
     cin >> index;
-    cin.ignore(10000, '\n');
+    cin.ignore(10000, '\n');//vycisti buffer
 
     if (index >= 0 && index < tasks.size()) {
 
@@ -207,8 +207,8 @@ void copyTask() {
     cout << "Zadej cislo ukolu: ";
     cin >> index;
     cin.ignore();
-    if (index >= 0 && index < tasks.size()) {
-        Task copy = tasks[index];
+    if (index >= 0 && index < tasks.size()) { //zda existuje zadane cislo ukolu
+        Task copy = tasks[index]; // Vytvoří kopii vybraného úkolu
         cout << "Zadej nove datum (DD-MM-YYY): ";
         getline(cin, copy.date);
         tasks.push_back(copy);
