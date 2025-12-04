@@ -5,7 +5,7 @@
 
 // Vrátí timestamp pondìlí a nedìle aktuálního týdne
 void getCurrentWeek(time_t& monday, time_t& sunday) {
-    time_t now = time(nullptr);
+    time_t now = time(nullptr); //aktualni cas v s od 1970
     tm tnow = *localtime(&now);
 
     tnow.tm_hour = 0;
@@ -14,16 +14,16 @@ void getCurrentWeek(time_t& monday, time_t& sunday) {
 
     time_t today = mktime(&tnow);
 
-    int dayOfWeek = tnow.tm_wday;
+    int dayOfWeek = tnow.tm_wday; // nedele = 0 
     if (dayOfWeek == 0) dayOfWeek = 7; // nedìle = 7
 
-    monday = today - (dayOfWeek - 1) * 24 * 60 * 60;
-    sunday = monday + 6 * 24 * 60 * 60;
+    monday = today - (dayOfWeek - 1) * 24 * 60 * 60; // prevod na sekundy
+    sunday = monday + 6 * 24 * 60 * 60; //vypocet nedele
 }
 
 // Pøevod timestampu na DD-MM-YYYY
 std::string formatDate(time_t t) {
-    tm* ptm = localtime(&t);
+    tm* ptm = localtime(&t); //prevod na lokalni cas
     char buffer[11];
     strftime(buffer, sizeof(buffer), "%d-%m-%Y", ptm);
     return std::string(buffer);
